@@ -16,14 +16,13 @@
 #endif
 #endif
 
-//#define W5500_4K_BUFFERS
+#define W5500_4K_BUFFERS
 //#define W5200_4K_BUFFERS
+#define W5200_8K_BUFFERS
 
 // If the core library defines a SS pin, use it as the
 // default.  Otherwise, default the default to pin 10.
-#if defined(__AVR__)
-#define SS_PIN_DEFAULT  10
-#elif defined(PIN_SPI_SS)
+#if defined(PIN_SPI_SS)
 #define SS_PIN_DEFAULT  PIN_SPI_SS
 #elif defined(CORE_SS0_PIN)
 #define SS_PIN_DEFAULT  CORE_SS0_PIN
@@ -83,7 +82,7 @@ uint8_t W5100Class::init(void)
 
 #ifdef USE_SPIFIFO
 	SPI.begin();
-	SPIFIFO.begin(ss_pin, SPI_CLOCK_12MHz);  // W5100 is 14 MHz max
+	SPIFIFO.begin(ss_pin, SPI_CLOCK_24MHz);  // W5100 is 14 MHz max
 #else
 	SPI.begin();
 	initSS();
@@ -97,9 +96,12 @@ uint8_t W5100Class::init(void)
 	// where it won't recover, unless given a reset pulse.
 	if (isW5200()) {
 		CH_BASE = 0x4000;
-		#ifdef W5200_4K_BUFFERS
-		SSIZE = 4096;
-		SMASK = 0x0FFF;
+        #ifdef W5200_8K_BUFFERS
+        SSIZE = 16384;
+        SMASK = 0x3FFF;
+		//#ifdef W5200_4K_BUFFERS
+		//SSIZE = 4096;
+		//SMASK = 0x0FFF;
 		#else
 		SSIZE = 2048;    // 2K buffers
 		SMASK = 0x07FF;
@@ -129,7 +131,7 @@ uint8_t W5100Class::init(void)
 		TXBUF_BASE = 0x8000;
 		RXBUF_BASE = 0xC000;
 		#ifdef W5500_4K_BUFFERS
-		for (i=0; i<MAX_SOCK_NUM; i++) {
+		for (i=0; i<1; i++) {
 			writeSnRX_SIZE(i, SSIZE >> 10);
 			writeSnTX_SIZE(i, SSIZE >> 10);
 		}
@@ -199,7 +201,7 @@ uint8_t W5100Class::isW5100(void)
 	if (readMR() != 0x12) return 0;
 	writeMR(0x00);
 	if (readMR() != 0x00) return 0;
-	//Serial.println("chip is W5100");
+	Serial.println("chip is W5100");
 	return 1;
 }
 
@@ -218,7 +220,7 @@ uint8_t W5100Class::isW5200(void)
 	//Serial.print("version=");
 	//Serial.println(ver);
 	if (ver != 3) return 0;
-	//Serial.println("chip is W5200");
+	Serial.println("chip is W5200");
 	return 1;
 }
 
@@ -237,7 +239,7 @@ uint8_t W5100Class::isW5500(void)
 	//Serial.print("version=");
 	//Serial.println(ver);
 	if (ver != 4) return 0;
-	//Serial.println("chip is W5500");
+	Serial.println("chip is W5500");
 	return 1;
 }
 

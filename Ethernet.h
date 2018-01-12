@@ -3,7 +3,7 @@
 
 // All symbols exposed to Arduino sketches are contained in this header file
 
-#define MAX_SOCK_NUM 4
+#define MAX_SOCK_NUM 1
 
 #include <inttypes.h>
 #include "Arduino.h"
@@ -180,14 +180,15 @@ private:
 class EthernetServer : public Server {
 private:
 	uint16_t _port;
+	uint8_t sockindex;
+	void accept();
 public:
-	EthernetServer(uint16_t port) : _port(port) { }
+	EthernetServer(uint16_t port) : _port(port), sockindex(MAX_SOCK_NUM) { }
 	EthernetClient available();
 	virtual void begin();
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
 	using Print::write;
-	//void statusreport();
 
 	// TODO: make private when socket allocation moves to EthernetClass
 	static uint16_t server_port[MAX_SOCK_NUM];
