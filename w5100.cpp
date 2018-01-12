@@ -18,7 +18,8 @@
 
 #define W5500_4K_BUFFERS
 //#define W5200_4K_BUFFERS
-#define W5200_8K_BUFFERS
+//#define W5200_8K_BUFFERS
+#define W5200_16K_BUFFERS
 
 // If the core library defines a SS pin, use it as the
 // default.  Otherwise, default the default to pin 10.
@@ -96,12 +97,15 @@ uint8_t W5100Class::init(void)
 	// where it won't recover, unless given a reset pulse.
 	if (isW5200()) {
 		CH_BASE = 0x4000;
-        #ifdef W5200_8K_BUFFERS
+        #ifdef W5200_16K_BUFFERS
         SSIZE = 16384;
         SMASK = 0x3FFF;
-		//#ifdef W5200_4K_BUFFERS
-		//SSIZE = 4096;
-		//SMASK = 0x0FFF;
+        #elif defined W5200_8K_BUFFERS
+        SSIZE = 8192;
+        SMASK = 0x1FFF;
+		#elif defined W5200_4K_BUFFERS
+		SSIZE = 4096;
+		SMASK = 0x0FFF;
 		#else
 		SSIZE = 2048;    // 2K buffers
 		SMASK = 0x07FF;
